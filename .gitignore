@@ -3,17 +3,22 @@ node_modules/
 .npm
 package-lock.json
 
-# Web Build (ENABLED because we are using it for source files)
-# dist/ 
+# Web Build (Enabled for this project)
+# dist/
 
-# iOS
+# iOS - DO NOT ignore .xcodeproj or .xcworkspace
 ios/App/Pods/
 ios/App/Podfile.lock
 ios/App/build/
 ios/App/App/public/
 ios/App/App/capacitor.config.json
-*.xcworkspace
-*.xcodeproj
+
+# Only ignore user settings and schemes that are purely local
+*.xcuserdata
+*.xccheckout
+*.xcscheme
+# !ios/App/App.xcodeproj
+# !ios/App/App.xcworkspace
 
 # OS files
 .DS_Store
