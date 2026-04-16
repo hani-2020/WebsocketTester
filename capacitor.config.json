@@ -1,0 +1,5 @@
+{
+  "appId": "com.example.sockettester",
+  "appName": "Socket Tester",
+  "webDir": "dist"
+}

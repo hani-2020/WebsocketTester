@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>iOS Socket Tester</title>
+    <style>
+        :root {
+            --primary: #007AFF;
+            --bg: #1c1c1e;
+            --card: #2c2c2e;
+            --text: #ffffff;
+            --text-dim: #8e8e93;
+            --success: #32d74b;
+            --error: #ff453a;
+            --warning: #ff9f0a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        header {
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+            background: var(--card);
+            color: var(--text-dim);
+        }
+
+        .status-badge.connected {
+            background: rgba(50, 215, 75, 0.2);
+            color: var(--success);
+        }
+
+        .status-badge.disconnected {
+            background: rgba(255, 69, 58, 0.2);
+            color: var(--error);
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            font-weight: 600;
+            padding-left: 4px;
+        }
+
+        input {
+            background: var(--card);
+            border: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus {
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:active {
+            opacity: 0.7;
+        }
+
+        button.primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        button.secondary {
+            background: var(--card);
+            color: white;
+        }
+
+        #log {
+            flex: 1;
+            margin-top: 24px;
+            background: #000;
+            border-radius: 12px;
+            padding: 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 13px;
+            overflow-y: auto;
+            border: 1px solid #3a3a3c;
+        }
+
+        .log-entry {
+            margin-bottom: 4px;
+            word-break: break-all;
+            line-height: 1.4;
+        }
+
+        .log-ts { color: var(--text-dim); margin-right: 6px; }
+        .log-icon { margin-right: 6px; }
+        .log-info { color: #fff; }
+        .log-success { color: var(--success); }
+        .log-error { color: var(--error); }
+        .log-warn { color: var(--warning); }
+        .log-dim { color: var(--text-dim); }
+
+        .tabs {
+            display: flex;
+            background: var(--card);
+            border-radius: 8px;
+            padding: 2px;
+            margin-top: 10px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 6px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #48484a;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Socket Tester</h1>
+        <div id="status" class="status-badge disconnected">Disconnected</div>
+    </header>
+
+    <div class="tabs">
+        <div class="tab active" onclick="setMode('io')">Socket.io</div>
+        <div class="tab" onclick="setMode('ws')">Raw WS</div>
+    </div>
+
+    <div class="controls">
+        <div class="input-group">
+            <label>URL</label>
+            <input type="text" id="url" value="wss://pmt-gows.retyn.dev">
+        </div>
+        <div class="input-group" id="path-group">
+            <label>Path</label>
+            <input type="text" id="path" value="/ws/chat/">
+        </div>
+        <div class="input-group">
+            <label>Query Params (JSON)</label>
+            <input type="text" id="query" value='{"user_id":"6","csrf":"anything","mobile_view":"true"}'>
+        </div>
+        <div class="button-group">
+            <button class="primary" onclick="connect()">Connect</button>
+            <button class="secondary" onclick="disconnect()">Disconnect</button>
+            <button class="secondary" onclick="clearLog()">Clear</button>
+        </div>
+    </div>
+
+    <div id="log"></div>
+
+    <script src="socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

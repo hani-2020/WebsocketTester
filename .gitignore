@@ -3,8 +3,8 @@ node_modules/
 .npm
 package-lock.json
 
-# Web Build
-dist/
+# Web Build (ENABLED because we are using it for source files)
+# dist/ 
 
 # iOS
 ios/App/Pods/
@@ -14,9 +14,6 @@ ios/App/App/public/
 ios/App/App/capacitor.config.json
 *.xcworkspace
 *.xcodeproj
-
-# Capacitor
-capacitor.config.json
 
 # OS files
 .DS_Store
