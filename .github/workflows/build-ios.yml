@@ -2,7 +2,6 @@ name: Build iOS IPA
 on: [push, workflow_dispatch]
 
 env:
-  # Opt into Node.js 24 to suppress deprecation warnings and future-proof the runner
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
@@ -23,13 +22,25 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync ios
 
-      - name: Build IPA (Simulator)
+      - name: Build App (Simulator)
         run: |
           cd ios/App
-          xcodebuild -workspace App.xcworkspace -scheme App -sdk iphonesimulator -derivedDataPath Build/
+          xcodebuild -workspace App.xcworkspace -scheme App -sdk iphonesimulator -derivedDataPath DerivedData
+          
+      - name: Prepare for Sauce Labs
+        run: |
+          # Find the .app and zip it
+          APP_PATH=$(find ios/App/DerivedData -name "App.app" -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: App.app not found!"
+            exit 1
+          fi
+          echo "Found app at: $APP_PATH"
+          cd $(dirname "$APP_PATH")
+          zip -r ../../../../App-Simulator.zip App.app
           
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ios-simulator-build
-          path: ios/App/Build/Build/Products/Debug-iphonesimulator/App.app
+          name: ios-saucelabs-build
+          path: App-Simulator.zip
