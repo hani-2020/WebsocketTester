@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+.npm
+package-lock.json
+
+# Web Build
+dist/
+
+# iOS
+ios/App/Pods/
+ios/App/Podfile.lock
+ios/App/build/
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+*.xcworkspace
+*.xcodeproj
+
+# Capacitor
+capacitor.config.json
+
+# OS files
+.DS_Store
+Thumbs.db
+.fseventsd
+
+# Secrets
+.env
+.env.*
