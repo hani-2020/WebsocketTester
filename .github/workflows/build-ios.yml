@@ -29,18 +29,22 @@ jobs:
           
       - name: Prepare for Sauce Labs
         run: |
-          # Find the .app and zip it
+          # Find the .app folder
           APP_PATH=$(find ios/App/DerivedData -name "App.app" -type d | head -n 1)
           if [ -z "$APP_PATH" ]; then
-            echo "Error: App.app not found!"
+            echo "::error::App.app not found in ios/App/DerivedData"
             exit 1
           fi
+          
           echo "Found app at: $APP_PATH"
-          cd $(dirname "$APP_PATH")
-          zip -r ../../../../App-Simulator.zip App.app
+          
+          # Create zip at root of workspace
+          # We use -j to 'junk' the paths so the zip contains the App.app direct, not the whole folder tree
+          zip -r "${{ github.workspace }}/App-Simulator.zip" "$APP_PATH"
           
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ios-saucelabs-build
           path: App-Simulator.zip
+          retention-days: 1
