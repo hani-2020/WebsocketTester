@@ -110,6 +110,7 @@ export default function App() {
           jsonp: false,
           forceNew: true,
           upgrade: true,
+          forceBase64: true, // Fixes React Native engine.io 'parser error' by stopping binary polling payloads
         });
 
         socketRef.current.on('connect', () => {
