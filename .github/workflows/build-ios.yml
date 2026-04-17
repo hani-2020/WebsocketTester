@@ -19,20 +19,21 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Sync Capacitor
-        run: npx cap sync ios
+      - name: Install Cocoapods
+        run: |
+          cd ios
+          pod install
 
       - name: Build App (Simulator)
         run: |
-          cd ios/App
-          xcodebuild -workspace App.xcworkspace -scheme App -sdk iphonesimulator -derivedDataPath DerivedData
+          xcodebuild -workspace ios/SocketTester.xcworkspace -scheme SocketTester -sdk iphonesimulator -derivedDataPath ios/DerivedData
           
       - name: Prepare for Sauce Labs
         run: |
           # Find the .app folder
-          APP_PATH=$(find ios/App/DerivedData -name "App.app" -type d | head -n 1)
+          APP_PATH=$(find ios/DerivedData -name "SocketTester.app" -type d | head -n 1)
           if [ -z "$APP_PATH" ]; then
-            echo "::error::App.app not found in ios/App/DerivedData"
+            echo "::error::SocketTester.app not found in ios/DerivedData"
             exit 1
           fi
           
