@@ -14,6 +14,14 @@ import {
 } from 'react-native';
 import io from 'socket.io-client';
 
+// React Native sometimes lacks navigator.userAgent which socket.io 2.x requires
+if (!window.navigator) {
+  (window as any).navigator = {};
+}
+if (!window.navigator.userAgent) {
+  window.navigator.userAgent = 'react-native';
+}
+
 type LogType = 'info' | 'success' | 'error' | 'warn';
 
 interface LogEntry {
@@ -61,11 +69,19 @@ export default function App() {
 
     if (mode === 'io') {
       try {
-        socketRef.current = io(url, {
+        const parsedUrl = url.replace('wss://', 'https://').replace('ws://', 'http://');
+        const origin = url.split('/').slice(0,3).join('/');
+        
+        socketRef.current = io(parsedUrl, {
           path: path || '/socket.io',
           query: queryObj,
           transports: ['websocket'],
+          jsonp: false,
           forceNew: true,
+          extraHeaders: {
+            Origin: origin,
+            'User-Agent': window.navigator.userAgent
+          }
         });
 
         socketRef.current.on('connect', () => {
