@@ -58,6 +58,23 @@ export default function App() {
     setStatus('Connecting');
     addLog(`Initiating ${mode === 'io' ? 'Socket.io' : 'Raw WS'} connection...`, 'info');
 
+    // WS Debug Interceptor
+    const OriginalWS = global.WebSocket;
+    if (!(global as any).__wsPatched) {
+      (global as any).__wsPatched = true;
+      (global as any).WebSocket = function(uri: string, protocols: any, options: any) {
+        addLog(`[WS Override] URL created: ${uri}`, 'info');
+        const ws = new OriginalWS(uri, protocols, options);
+        ws.addEventListener('error', (e: any) => {
+           addLog(`[WS Event] inner onerror triggered: ${e.message || JSON.stringify(e)}`, 'warn');
+        });
+        ws.addEventListener('close', (e: any) => {
+           addLog(`[WS Event] closed ${e.code} ${e.reason}`, 'warn');
+        });
+        return ws;
+      };
+    }
+
     let queryObj = {};
     try {
       if (queryParams.trim()) {
@@ -91,7 +108,9 @@ export default function App() {
 
         socketRef.current.on('connect_error', (err: any) => {
           setStatus('Disconnected');
-          addLog(`Connect Error: ${err.message || err}`, 'error');
+          let details = err;
+          if (err && err.description) details = err.description;
+          addLog(`Connect Error: ${err.message || err}. Details: ${JSON.stringify(details)}`, 'error');
         });
 
         socketRef.current.on('disconnect', (reason: string) => {
