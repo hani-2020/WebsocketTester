@@ -26,7 +26,7 @@ jobs:
 
       - name: Build App (Simulator)
         run: |
-          xcodebuild -workspace ios/SocketTester.xcworkspace -scheme SocketTester -sdk iphonesimulator -derivedDataPath ios/DerivedData
+          xcodebuild -workspace ios/SocketTester.xcworkspace -scheme SocketTester -configuration Release -sdk iphonesimulator -derivedDataPath ios/DerivedData
           
       - name: Prepare for Sauce Labs
         run: |
