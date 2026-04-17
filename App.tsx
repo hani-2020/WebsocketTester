@@ -76,9 +76,7 @@ export default function App() {
         const newOptions = options || {};
         newOptions.headers = newOptions.headers || {};
         newOptions.headers['Origin'] = origin;
-        
-        // Spoof standard iOS Safari user-agent to bypass strict WAF / Cloudflare bot protection
-        newOptions.headers['User-Agent'] = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Mobile/15E148 Safari/604.1';
+        // Removed User-Agent spoofing as it causes TLS fingerprint mismatches with WAFs
 
         const ws = new OriginalWS(uri, protocols, newOptions);
         ws.addEventListener('error', (e: any) => {
@@ -108,13 +106,10 @@ export default function App() {
         socketRef.current = io(parsedUrl, {
           path: path || '/socket.io',
           query: queryObj,
-          transports: ['websocket'],
+          transports: ['polling', 'websocket'], // Use polling first for React Native WAF compatibility
           jsonp: false,
           forceNew: true,
-          extraHeaders: {
-            Origin: origin,
-            'User-Agent': window.navigator.userAgent
-          }
+          upgrade: true,
         });
 
         socketRef.current.on('connect', () => {
