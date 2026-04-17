@@ -58,13 +58,29 @@ export default function App() {
     setStatus('Connecting');
     addLog(`Initiating ${mode === 'io' ? 'Socket.io' : 'Raw WS'} connection...`, 'info');
 
-    // WS Debug Interceptor
+    // WS Debug Interceptor & Header Injector
     const OriginalWS = global.WebSocket;
     if (!(global as any).__wsPatched) {
       (global as any).__wsPatched = true;
       (global as any).WebSocket = function(uri: string, protocols: any, options: any) {
         addLog(`[WS Override] URL created: ${uri}`, 'info');
-        const ws = new OriginalWS(uri, protocols, options);
+
+        // Extract origin from the URI
+        let origin = '';
+        if (uri.includes('://')) {
+          const parts = uri.split('/');
+          origin = parts.slice(0, 3).join('/').replace('wss://', 'https://').replace('ws://', 'http://');
+        }
+
+        // React Native allows passing a 3rd options argument for native headers
+        const newOptions = options || {};
+        newOptions.headers = newOptions.headers || {};
+        newOptions.headers['Origin'] = origin;
+        
+        // Spoof standard iOS Safari user-agent to bypass strict WAF / Cloudflare bot protection
+        newOptions.headers['User-Agent'] = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Mobile/15E148 Safari/604.1';
+
+        const ws = new OriginalWS(uri, protocols, newOptions);
         ws.addEventListener('error', (e: any) => {
            addLog(`[WS Event] inner onerror triggered: ${e.message || JSON.stringify(e)}`, 'warn');
         });
