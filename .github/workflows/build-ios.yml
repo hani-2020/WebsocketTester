@@ -39,8 +39,10 @@ jobs:
           echo "Found app at: $APP_PATH"
           
           # Create zip at root of workspace
-          # We use -j to 'junk' the paths so the zip contains the App.app direct, not the whole folder tree
-          zip -r "${{ github.workspace }}/App-Simulator.zip" "$APP_PATH"
+          # We change into the .app's parent directory first so that the .app folder
+          # is at the root of the zip archive, which Sauce Labs requires.
+          cd "$(dirname "$APP_PATH")"
+          zip -q -r "${{ github.workspace }}/App-Simulator.zip" "$(basename "$APP_PATH")"
           
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
